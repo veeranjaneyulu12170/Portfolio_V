@@ -157,7 +157,7 @@ const AnimatedExperience = () => {
                   key={exp.title}
                   ref={(el) => (itemRefs.current[index] = el)}
                   data-index={index}
-                  className="relative flex items-center"
+                  className="relative flex flex-col md:flex-row items-center"
                 >
                   {/* Timeline Dot */}
                   <div className="absolute left-1/2 transform -translate-x-1/2 z-10">
@@ -171,7 +171,11 @@ const AnimatedExperience = () => {
                   </div>
 
                   {/* Experience Card */}
-                  <div className={`w-5/12 ${index % 2 === 0 ? "mr-auto pr-8" : "ml-auto pl-8"}`}>
+                  <div
+                    className={`w-full md:w-5/12 ${
+                      index % 2 === 0 ? "md:mr-auto md:pr-8" : "md:ml-auto md:pl-8"
+                    }`}
+                  >
                     <Card
                       className={`transform transition-all duration-700 ${
                         visibleItems.includes(index)
