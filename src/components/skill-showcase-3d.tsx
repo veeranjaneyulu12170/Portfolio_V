@@ -508,11 +508,13 @@ const SkillShowcase3D = () => {
       <Canvas 
         camera={{ position: [15, 5, 15], fov: 60 }} 
         style={{ height: "120vh" }}
+        dpr={[1, 1.5]}
+        shadows={false}
         gl={{
-          antialias: true,
+          antialias: false,
           powerPreference: "high-performance",
           alpha: true,
-          preserveDrawingBuffer: true
+          preserveDrawingBuffer: false
         }}
         onCreated={({ gl }) => {
           // Add WebGL context handling
@@ -522,7 +524,7 @@ const SkillShowcase3D = () => {
         <Environment preset="night" />
 
         <ambientLight intensity={0.8} />
-        <directionalLight position={[-10,5,-10]} intensity={1.2} color="#ffffff" castShadow />
+        <directionalLight position={[-10,5,-10]} intensity={1.0} color="#ffffff" />
         <pointLight position={[-10, -10, -10]} intensity={0.8} color={skills[activeSkillIndex].color} />
         <pointLight position={[5, 15, 5]} intensity={0.6} color="#4a90e2" />
 

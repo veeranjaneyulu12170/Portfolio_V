@@ -104,20 +104,24 @@ const AnimatedExperience = () => {
   }, [])
 
   useEffect(() => {
+    let ticking = false
     const handleScroll = () => {
       if (!timelineRef.current) return
-
-      const rect = timelineRef.current.getBoundingClientRect()
-      const windowHeight = window.innerHeight
-      const scrollProgress = Math.max(0, Math.min(1, (windowHeight - rect.top) / (windowHeight + rect.height)))
-
-      setLineHeight(scrollProgress * 100)
+      if (ticking) return
+      ticking = true
+      window.requestAnimationFrame(() => {
+        const rect = timelineRef.current!.getBoundingClientRect()
+        const windowHeight = window.innerHeight
+        const scrollProgress = Math.max(0, Math.min(1, (windowHeight - rect.top) / (windowHeight + rect.height)))
+        setLineHeight(scrollProgress * 100)
+        ticking = false
+      })
     }
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true } as AddEventListenerOptions)
     handleScroll()
 
-    return () => window.removeEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll as EventListener)
   }, [])
 
   return (

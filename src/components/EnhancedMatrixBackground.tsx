@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useEffect, useCallback } from "react"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 const codeSnippets = [
   "const magic = () => creativity();",
@@ -36,12 +37,15 @@ interface Ripple {
 }
 
 const EnhancedMatrixBackground = () => {
+  const isMobile = useIsMobile()
+  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [particles, setParticles] = useState<Particle[]>([])
   const [ripples, setRipples] = useState<Ripple[]>([])
   const [time, setTime] = useState(0)
 
   useEffect(() => {
+    if (isMobile || prefersReducedMotion) return
     const initialParticles: Particle[] = []
     for (let i = 0; i < 50; i++) {
       initialParticles.push({
@@ -59,6 +63,7 @@ const EnhancedMatrixBackground = () => {
   }, [])
 
   useEffect(() => {
+    if (isMobile || prefersReducedMotion) return
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY })
     }
@@ -67,6 +72,7 @@ const EnhancedMatrixBackground = () => {
   }, [])
 
   const handleClick = useCallback((e: React.MouseEvent) => {
+    if (isMobile || prefersReducedMotion) return
     const newRipple: Ripple = {
       id: Date.now(),
       x: e.clientX,
@@ -78,6 +84,7 @@ const EnhancedMatrixBackground = () => {
   }, [])
 
   useEffect(() => {
+    if (isMobile || prefersReducedMotion) return
     const animate = () => {
       setTime(Date.now() * 0.001)
 
@@ -105,6 +112,15 @@ const EnhancedMatrixBackground = () => {
     const interval = setInterval(animate, 16)
     return () => clearInterval(interval)
   }, [])
+
+  if (isMobile || prefersReducedMotion) {
+    return (
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-900/30 via-black to-black" />
+      </div>
+    )
+  }
 
   return (
     <div className="fixed inset-0 pointer-events-auto z-0 blur-[0.3px] cursor-crosshair" onClick={handleClick}>

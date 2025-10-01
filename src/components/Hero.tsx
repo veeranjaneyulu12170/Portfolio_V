@@ -1,5 +1,6 @@
 import { ArrowDown, Github, Linkedin, Mail, Code, Zap, Cpu, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { useState, useEffect, useRef } from 'react';
 import SkillShowcase from './SkillShowcase';
 const Hero = () => {
@@ -19,16 +20,63 @@ const Hero = () => {
   // Parallax and delay state
 
   const [scrollY, setScrollY] = useState(0);
+  const isMobileDevice = useIsMobile();
 
   // Show sections after 3 seconds
 
 
   // Parallax scroll effect
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    if (isMobileDevice) {
+      setScrollY(0);
+      return;
+    }
+    let lastY = window.scrollY;
+    let ticking = false;
+    const handleScroll = () => {
+      const y = window.scrollY;
+      if (y === lastY) return;
+      lastY = y;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrollY(lastY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true } as AddEventListenerOptions);
+    return () => window.removeEventListener('scroll', handleScroll as EventListener);
+  }, [isMobileDevice]);
+
+  const isMobile = isMobileDevice;
+  const [shouldLoadSpline, setShouldLoadSpline] = useState(false);
+  useEffect(() => {
+    const heroContainer = document.getElementById('home');
+    if (!heroContainer) return;
+  
+    // Always load Spline immediately on mobile
+    if (window.innerWidth <= 768) {
+      setShouldLoadSpline(true);
+      return;
+    }
+  
+    // Desktop: load when container enters viewport
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoadSpline(true);
+          }
+        });
+      },
+      { rootMargin: '0px 0px -20% 0px', threshold: 0.01 }
+    );
+  
+    io.observe(heroContainer);
+    return () => io.disconnect();
   }, []);
+  
 
   const loadingTips = [
     "Initializing quantum processors...",
@@ -200,6 +248,7 @@ const Hero = () => {
 
   // Interactive particles system
   useEffect(() => {
+    if (isMobileDevice) return;
     const createParticle = (x, y) => {
       const newParticle = {
         id: Date.now() + Math.random(),
@@ -225,10 +274,11 @@ const Hero = () => {
     }, 200);
 
     return () => clearInterval(interval);
-  }, [mousePosition, isSplineLoaded]);
+  }, [mousePosition, isSplineLoaded, isMobileDevice]);
 
   // Particle animation
   useEffect(() => {
+    if (isMobileDevice) return;
     const animate = () => {
       setParticles(prev => prev.map(particle => ({
         ...particle,
@@ -247,10 +297,11 @@ const Hero = () => {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, []);
+  }, [isMobileDevice]);
 
   // Loading progress and tips
   useEffect(() => {
+    if (isMobileDevice) return;
     const progressInterval = setInterval(() => {
       setLoadingProgress(prev => {
         if (prev >= 90) return prev;
@@ -281,10 +332,11 @@ const Hero = () => {
       clearInterval(glitchInterval);
       clearTimeout(fallbackTimer);
     };
-  }, [isSplineLoaded]);
+  }, [isSplineLoaded, isMobileDevice]);
 
   // Typing effect
   useEffect(() => {
+    if (isMobileDevice) return;
     if (!isSplineLoaded) {
       const text = loadingTips[currentTip];
       let index = 0;
@@ -303,7 +355,7 @@ const Hero = () => {
 
       return () => clearInterval(typeInterval);
     }
-  }, [currentTip, isSplineLoaded]);
+  }, [currentTip, isSplineLoaded, isMobileDevice]);
 
   const handleSplineLoad = () => {
     setIsSplineLoaded(true);
@@ -348,13 +400,16 @@ const Hero = () => {
 
       {/* Spline 3D Background */}
       <div className="absolute inset-0 w-full h-full bg-transparent">
-      <iframe
-  src="https://my.spline.design/chatgptkeyboard-ZMB3GS2L1zFsCZbGik3Yvr31/"
-  width="100%"
-  height="100%"
-  allow="fullscreen; vr; camera"
-  style={{border:0}}
-></iframe>
+      {shouldLoadSpline && (
+        <iframe
+          src="https://my.spline.design/chatgptkeyboard-ZMB3GS2L1zFsCZbGik3Yvr31/"
+          width="100%"
+          height="100%"
+          allow="fullscreen; vr; camera"
+          style={{border:0}}
+          loading="lazy"
+        />
+      )}
 
         
         {/* Enhanced Interactive Fallback */}
@@ -379,16 +434,16 @@ const Hero = () => {
 
         <div className="animate-fade-in">
           <div className="text-left">
-          <h1 className="text-8xl md:text-10xl font-bold text-white m-4 leading-tight drop-shadow-2xl">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold text-white m-4 leading-tight drop-shadow-2xl">
   <span className="font-mono bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-500 bg-clip-text text-transparent press-start-2p-regular1">
     {typedCreative}
     <span className="inline-block w-2 h-6 bg-emerald-400 ml-1 animate-pulse"></span>
   </span>
-  <span className="m-7 block bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-500 text-4xl bg-clip-text text-transparent ">
-    <span className="press-start-2p-regular1">
-      Developer <br />
-      <span className="ml-[300px]">+</span> <br />
-      <span className="ml-[350px]">Designer</span>
+  <span className="m-4 sm:m-7 block bg-gradient-to-r from-emerald-400 via-green-400 to-emerald-500 text-2xl sm:text-4xl bg-clip-text text-transparent ">
+    <span className="press-start-2p-regular1 block">
+      <span className="block text-center md:text-left">Developer</span>
+      <span className=" md:ml-[350px]">+</span>
+      <span className="block text-center md:ml-[10px]">Designer</span>
     </span>
   </span>
 </h1>
