@@ -473,7 +473,7 @@ export default function AboutSection() {
 </a>
 
               <a
-  href="https://drive.google.com/file/d/1jawMpe7L4aqmuaUH7sN_zd_4D9a-aLAh/view?usp=sharing"
+  href="https://console.cloudinary.com/app/c-3bb965bbdb0fe2a6a6a6a20bb8d6f3/assets/media_library/search/asset/41c74233ddf242242d6185020f42f94f/manage/summary?q=&view_mode=mosaic&context=manage"
   target="_blank"
   rel="noopener noreferrer"
 >
